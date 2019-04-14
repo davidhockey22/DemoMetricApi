@@ -74,7 +74,7 @@ This is based in spring boot with maven so running is super easy.
 
 To build and run unit tests
 
-    ./mvnw deploy
+    ./mvnw package spring-boot:repackage
 
 ## Quick API call examples
 
