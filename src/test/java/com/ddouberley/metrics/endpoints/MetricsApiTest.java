@@ -2,8 +2,6 @@ package com.ddouberley.metrics.endpoints;
 
 import com.ddouberley.metrics.controllers.MetricsController;
 import com.ddouberley.metrics.entities.Metric;
-import com.ddouberley.metrics.entities.MetricEntry;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,11 +48,8 @@ public class MetricsApiTest {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("metricEntries").isArray())
-                .andExpect(jsonPath("metricEntries").value(
-                        Matchers.hasItem(
-                            Matchers.<MetricEntry>hasProperty("metricValue", Matchers.is(.021))
-                        )
-                ))
+                .andExpect(jsonPath("metricEntries").isNotEmpty())
+                .andExpect(jsonPath("$.metricEntries[0].metricValue", is(.021)))
                 .andExpect(jsonPath("metricId").value(metric.getMetricId()));
     }
 

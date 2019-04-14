@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public abstract class MetricsController {
 
-    protected final MetricStore metricStore;
+    final MetricStore metricStore;
 
     public MetricsController(MetricStore metricStore) {
         this.metricStore = metricStore;
