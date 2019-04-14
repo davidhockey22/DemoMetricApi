@@ -1,4 +1,4 @@
-# Design Document
+# Demo Metric API
 
 The API was made to be as simple as possible while allowing for flexibility in the future. The attempt was to follow the guidelines to the letter, so I stuck to three endpoints fulfilling the three required actions. My initial thought was to create a restful endpoint for the Metric entity and then provide a summary action, but I think for ease of use, providing a simple add metric entry method is better and is less tightly coupled to the internals of the metric entity if it were to change in the future. Based on your desire for a developer with spring IOC and boot experience, I figured I’d showcase those in this project as well.
 
@@ -54,6 +54,7 @@ The store has references to object that exist outside the store so modifications
 | Create Metric      | /CreateMetric   | PUT  |  **name**=String Name of the metric.        | JSON object of Metric type <br> `{"metricName":"TestMetric2","metricId":0, "metricEntries":[]}`                 | Creates a metric item and persists the item to the store, returning   the resulting Metric item type as JSON. | 
 | Add Metric Entry   | /AddMetricEntry | POST |**metricId**=Long ID property of the metric <br> **value**=Float Float value for adding to metric’s entries     | JSON object of Metric type <br>         `{"metricName":"TestMetric2", "metricId":0, "metricEntries":[{"metricValue":6.5,"order":0}]}` <br> Possible 404 if metricId not found.          | Adds a MetricEntry with the value provided to an existing Metric with   the associated metricId.              |
 | Get Metric Summary | /MetricSummary  | PUT  |      **metricId**=Long ID property of the metric      |   JSON object of Metric Summary type <br>      `{ "metricName": "TestMetric2", "mean": 5.09689998626709, "median": 5.25, "min": 1, "max": 8.8876, "metricId": 0}`<br> Possible 404 if metricId not found.<br> Not all properties will be available if there are not MetricEntries | Gets the summary for the metric with the associated id.                                                       |
+
 Note all endpoints will return 400 on illegal arguments. 
 
 ### Endpoint Time and Space
@@ -64,3 +65,22 @@ Note all endpoints will return 400 on illegal arguments.
 | Add Metric Entry | O(1) <br> Each operation in the summary is calculated in O(1) because of the ReadOptimizedMetric | O(1) None of this information in this endpoint is stored and even for the short life of the summary object the memory does not increase for each entry.
 
 Note: All of the assume that the store access time is O(1) which it is for the map used in the InMemoryStore(amoritized). 
+
+# Build and Run information
+This is based in spring boot with maven so running is super easy. 
+
+    git clone this-repos-clone-url
+    ./mvnw spring-boot:run
+
+To build and run unit tests
+
+    ./mvnw deploy
+
+## Quick API call examples
+
+    # Create metric with name TestMetric2
+    curl -X PUT 'http://localhost:8080/CreateMetric?name=TestMetric2'
+    # Get metric with metric id 0
+    curl -X GET 'http://localhost:8080/MetricSummary?metricId=0'
+    #Add Metric entry to metric id 0 with value 8.5
+    curl -X POST http://localhost:8080/AddMetricEntry -d 'metricId=0&value=8.5'
