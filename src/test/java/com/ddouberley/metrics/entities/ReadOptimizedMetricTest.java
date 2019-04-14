@@ -61,11 +61,11 @@ public class ReadOptimizedMetricTest {
 
     private Metric buildTestMetric() {
         Metric metric = new ReadOptimizedMetric("TestMetric");
-        metric.addMetricEntry(new MetricEntry(7, 0));
-        metric.addMetricEntry(new MetricEntry(9, 1));
-        metric.addMetricEntry(new MetricEntry(4, 2));
-        metric.addMetricEntry(new MetricEntry(12, 3));
-        metric.addMetricEntry(new MetricEntry(1, 4));
+        metric.addMetricEntry(new MetricEntry(7));
+        metric.addMetricEntry(new MetricEntry(9));
+        metric.addMetricEntry(new MetricEntry(4));
+        metric.addMetricEntry(new MetricEntry(12));
+        metric.addMetricEntry(new MetricEntry(1));
         return metric;
     }
 }

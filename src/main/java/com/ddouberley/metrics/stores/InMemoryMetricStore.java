@@ -1,6 +1,7 @@
 package com.ddouberley.metrics.stores;
 
 import com.ddouberley.metrics.entities.Metric;
+import com.ddouberley.metrics.entities.MetricEntry;
 import com.ddouberley.metrics.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -66,5 +67,17 @@ public class InMemoryMetricStore extends MetricStore {
             throw new ResourceNotFoundException();
         }
         metricsMap.remove(metric.getMetricId());
+    }
+
+    @Override
+    public Metric addMetricEntryToMetric(long id, MetricEntry metricEntry) {
+        synchronized (this){
+            Metric metric = this.getMetric(id);
+            if(metric != null) {
+                metric.addMetricEntry(metricEntry);
+                return metric;
+            }
+        }
+        throw new ResourceNotFoundException();
     }
 }

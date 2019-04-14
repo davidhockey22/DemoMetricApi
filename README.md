@@ -30,7 +30,7 @@ The best way to optimize reading the mean is to keep a running sum of the Metric
 
 #### Median
 
-The median requires getting the middle element or middle two elements of the value ordered metric entries. To optimize this for reading, the array of entries is kept sorted by value allowing the median to be calculated in O(1). The API therefore does not guarantee ordering of the metrics entries, but I chose to also include an order property for if they need to be looked at in entry added order.
+The median requires getting the middle element or middle two elements of the value ordered metric entries. To optimize this for reading, the array of entries is kept sorted by value allowing the median to be calculated in O(1). The API therefore does not guarantee ordering of the metrics entries. We could add a property to the MetricEntry with the the current time or perhaps an ordering if we wanted to keep the order of entries consistent.
 
 #### Min/Max
 
@@ -40,7 +40,7 @@ Note: MetricSummary was written so that it could use read or write optimized Met
 
 ### Known Limitation
 
-The only way to guarantee consistency for adding values to the metrics in a multithread environment was to synchronize the addMetrics function in the controller, slowing writes even further. Otherwise adding two metric values simultaneously, could cause the stores’ update to overwrite the previous change. This could be solved if the entries were a relational entity instead of embedded but that does have read time considerations.
+The only way to guarantee consistency for adding values to the metrics in a multithread environment synchronize the store's add metric entry method. Otherwise adding two metric values simultaneously, could cause the stores’ update to overwrite the previous change. A better store could either have relational tables for the update or for MongoDb you could use one of the document push/update methods to handle the situation.
 
 The total of all entries is limited to the size of a Max double due to the running total and mean calculation. This is a tradeoff for write speeds. You could calculate mean in a way to avoid overflows but there’d be more space and time tradeoffs and it would complicate this function greatly so it’d need to be specified whether the customers use case required the considering.
 
@@ -52,7 +52,7 @@ The store has references to object that exist outside the store so modifications
 | Action             | Path            | Type | Parameters | Return with Example | Description                                                                                                   |  
 |--------------------|-----------------|------|------------|---------------------|---------------------------------------------------------------------------------------------------------------|
 | Create Metric      | /CreateMetric   | PUT  |  **name**=String Name of the metric.        | JSON object of Metric type <br> `{"metricName":"TestMetric2","metricId":0, "metricEntries":[]}`                 | Creates a metric item and persists the item to the store, returning   the resulting Metric item type as JSON. | 
-| Add Metric Entry   | /AddMetricEntry | POST |**metricId**=Long ID property of the metric <br> **value**=Float Float value for adding to metric’s entries     | JSON object of Metric type <br>         `{"metricName":"TestMetric2", "metricId":0, "metricEntries":[{"metricValue":6.5,"order":0}]}` <br> Possible 404 if metricId not found.          | Adds a MetricEntry with the value provided to an existing Metric with   the associated metricId.              |
+| Add Metric Entry   | /AddMetricEntry | POST |**metricId**=Long ID property of the metric <br> **value**=Float Float value for adding to metric’s entries     | JSON object of Metric type <br>         `{"metricName":"TestMetric2", "metricId":0, "metricEntries":[{"metricValue":6.5}]}` <br> Possible 404 if metricId not found.          | Adds a MetricEntry with the value provided to an existing Metric with   the associated metricId.              |
 | Get Metric Summary | /MetricSummary  | PUT  |      **metricId**=Long ID property of the metric      |   JSON object of Metric Summary type <br>      `{ "metricName": "TestMetric2", "mean": 5.09689998626709, "median": 5.25, "min": 1, "max": 8.8876, "metricId": 0}`<br> Possible 404 if metricId not found.<br> Not all properties will be available if there are not MetricEntries | Gets the summary for the metric with the associated id.                                                       |
 
 Note all endpoints will return 400 on illegal arguments. 
@@ -61,7 +61,7 @@ Note all endpoints will return 400 on illegal arguments.
 | Endpoint | Time | Space |
 |--|--|--|
 | Create Metric | O(1) <br> There's not much happening here to increase complexity. |  O(1) <br> This creates 1 Metric entry and only one copy of each piece of the data, except for the running sum, resulting in 64 bits(one double) of duplicate information. |
-| Add Metric Entry | O(n) <br> This is bound by the time that it takes to insert the new entry into the correct value ordered slot in the metric's entries | O(n) <br> This is really for the general storage of all the metric entries. Each entry is stored once.
+| Add Metric Entry | O(n) <br> This is bound by the time that it takes to insert the new entry into the correct value ordered slot in the metric's entries. It also must go through all metric entries to jsonify the data returned on the endpoint. | O(n) <br> This is really for the general storage of all the metric entries. Each entry is stored once.
 | Add Metric Entry | O(1) <br> Each operation in the summary is calculated in O(1) because of the ReadOptimizedMetric | O(1) None of this information in this endpoint is stored and even for the short life of the summary object the memory does not increase for each entry.
 
 Note: All of the assume that the store access time is O(1) which it is for the map used in the InMemoryStore(amoritized). 

@@ -56,7 +56,7 @@ public class InMemoryMetricStoreTest {
         // but persisting to store
         Metric metric2Update = new ReadOptimizedMetric("MetricTest");
         metric2Update.setMetricId(metric2.getMetricId());
-        metric2Update.addMetricEntry(new MetricEntry(4f, 0));
+        metric2Update.addMetricEntry(new MetricEntry(4f));
         metric2 = metricStore.updateMetric(metric2Update);
 
         Assert.assertEquals(metricStore.getMetric(metric2.getMetricId()).getMetricEntries().get(0).getMetricValue(), 4f, .01);

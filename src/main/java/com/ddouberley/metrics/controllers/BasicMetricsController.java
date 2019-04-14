@@ -54,15 +54,8 @@ public class BasicMetricsController extends MetricsController {
      * @return the updated metric
      */
     public Metric addMetricEntry(long metricId, float value) {
-        synchronized (this) {
-            Metric metric = this.metricStore.getMetric(metricId);
-            if (metric != null) {
-                MetricEntry metricEntry = new MetricEntry(value, metric.getMetricEntries().size());
-                metric.addMetricEntry(metricEntry);
-                return this.metricStore.updateMetric(metric);
-            }
-        }
-        throw new ResourceNotFoundException();
+        MetricEntry metricEntry = new MetricEntry(value);
+        return metricStore.addMetricEntryToMetric(metricId, metricEntry);
     }
 
     /**

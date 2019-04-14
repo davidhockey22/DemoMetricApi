@@ -1,6 +1,7 @@
 package com.ddouberley.metrics.stores;
 
 import com.ddouberley.metrics.entities.Metric;
+import com.ddouberley.metrics.entities.MetricEntry;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -12,4 +13,5 @@ public abstract class MetricStore{
     public abstract Metric getMetric(long id);
     public abstract Collection<Metric> getMetrics();
     public abstract void deleteMetric(Metric metric);
+    public abstract Metric addMetricEntryToMetric(long id, MetricEntry metricEntry);
 }
