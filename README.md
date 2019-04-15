@@ -62,7 +62,7 @@ Note all endpoints will return 400 on illegal arguments.
 |--|--|--|
 | Create Metric | O(1) <br> There's not much happening here to increase complexity. |  O(1) <br> This creates 1 Metric entry and only one copy of each piece of the data, except for the running sum, resulting in 64 bits(one double) of duplicate information. |
 | Add Metric Entry | O(n) <br> This is bound by the time that it takes to insert the new entry into the correct value ordered slot in the metric's entries. It also must go through all metric entries to jsonify the data returned on the endpoint. | O(n) <br> This is really for the general storage of all the metric entries. Each entry is stored once.
-| Add Metric Entry | O(1) <br> Each operation in the summary is calculated in O(1) because of the ReadOptimizedMetric | O(1) None of this information in this endpoint is stored and even for the short life of the summary object the memory does not increase for each entry.
+| Get Metric Summary | O(1) <br> Each operation in the summary is calculated in O(1) because of the ReadOptimizedMetric | O(1) None of this information in this endpoint is stored and even for the short life of the summary object the memory does not increase for each entry.
 
 Note: All of the assume that the store access time is O(1) which it is for the map used in the InMemoryStore(amoritized). 
 
