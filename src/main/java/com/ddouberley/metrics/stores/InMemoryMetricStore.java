@@ -6,8 +6,8 @@ import com.ddouberley.metrics.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -20,7 +20,7 @@ public class InMemoryMetricStore extends MetricStore {
     }
 
     public InMemoryMetricStore() {
-        this.metricsMap = new HashMap<>();
+        this.metricsMap = new ConcurrentHashMap<>();
     }
 
     @Override

@@ -40,11 +40,11 @@ Note: MetricSummary was written so that it could use read or write optimized Met
 
 ### Known Limitation
 
-The only way to guarantee consistency for adding values to the metrics in a multithread environment synchronize the store's add metric entry method. Otherwise adding two metric values simultaneously, could cause the stores’ update to overwrite the previous change. A better store could either have relational tables for the update or for MongoDb you could use one of the document push/update methods to handle the situation.
+The only way to guarantee consistency for adding values to the metrics in a multithread environment synchronize the store's add metric entry method. Otherwise adding two metric values simultaneously could cause the stores’ update to overwrite the previous change. A better store could either have relational tables for the update or for MongoDb you could use one of the document push/update methods to handle the situation.
 
-The total of all entries is limited to the size of a Max double due to the running total and mean calculation. This is a tradeoff for write speeds. You could calculate mean in a way to avoid overflows but there’d be more space and time tradeoffs and it would complicate this function greatly so it’d need to be specified whether the customers use case required the considering.
+The total of all entries is limited to the size of a Max double due to the running total and mean calculation. This is a tradeoff for write speeds. You could calculate mean in a way to avoid overflows but there’d be more space and time tradeoffs and it would complicate this function greatly so it’d need to be specified whether the customers use case required that consideration.
 
-The store has references to object that exist outside the store so modifications outside of the store are possible. This would be solved by having a better store system. As it is this store system is more of a POC test store.
+The store has references to object that exist outside the store so modifications outside of the store are possible. This would be solved by having a better store system that provided new references on changes. 
 
 # API Documentation
 
