@@ -40,7 +40,7 @@ Note: MetricSummary was written so that it could use read or write optimized Met
 
 ### Known Limitation
 
-The only way to guarantee consistency for adding values to the metrics in a multithread environment synchronize the store's add metric entry method. Otherwise adding two metric values simultaneously could cause the stores’ update to overwrite the previous change. A better store could either have relational tables for the update or for MongoDb you could use one of the document push/update methods to handle the situation.
+The only way to guarantee consistency for adding values to the metrics in a multithread environment was to synchronize the store's add metric entry method. Otherwise adding two metric values simultaneously, could cause the stores’ update to overwrite the previous change. A better store could either have relational tables for the update or for MongoDb you could use one of the document push/update methods to handle the situation.
 
 The total of all entries is limited to the size of a Max double due to the running total and mean calculation. This is a tradeoff for write speeds. You could calculate mean in a way to avoid overflows but there’d be more space and time tradeoffs and it would complicate this function greatly so it’d need to be specified whether the customers use case required that consideration.
 
@@ -76,7 +76,7 @@ To build and run unit tests
 
     ./mvnw package spring-boot:repackage
 
-## Quick API call examples
+## Quick API Call Examples
 
     # Create metric with name TestMetric2
     curl -X PUT 'http://localhost:8080/CreateMetric?name=TestMetric2'
