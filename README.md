@@ -70,7 +70,12 @@ Note: All of the assume that the store access time is O(1) which it is for the m
 This is based in spring boot with maven so running is super easy. 
 
     git clone this-repos-clone-url
-    ./mvnw spring-boot:run
+    # For unix
+	./mvnw spring-boot:run
+	# For Windows cmd
+	.\mvnw.cmd spring-boot:run
+	#To change the ports
+	./mvnw spring-boot:run -Dserver.port=8090
 
 To build and run unit tests
 
