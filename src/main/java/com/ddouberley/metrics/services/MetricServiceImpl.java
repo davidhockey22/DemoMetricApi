@@ -1,4 +1,4 @@
-package com.ddouberley.metrics.controllers;
+package com.ddouberley.metrics.services;
 
 import com.ddouberley.metrics.entities.Metric;
 import com.ddouberley.metrics.entities.MetricEntry;
@@ -12,16 +12,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BasicMetricsController extends MetricsController {
+public class MetricServiceImpl implements MetricService {
     @Value("${server.optimize}")
     String optimizeFor;
 
+    private MetricStore metricStore;
+
     /**
-     * Constructs a BasicMetricsController a metric store for persistence
+     * Constructs a BasicMetricsController with a metric store for persistence
      */
     @Autowired
-    public BasicMetricsController(MetricStore metricStore) {
-        super(metricStore);
+    public MetricServiceImpl(MetricStore metricStore) {
+        this.metricStore = metricStore;
     }
 
     /**
@@ -49,15 +51,15 @@ public class BasicMetricsController extends MetricsController {
 
     /**
      * Adds a metric entry to the metric associated with the metricId provided and stored the updated metric
-     * @param metricId the id associated with a metric in the store
+     * @param metricName the id associated with a metric in the store
      * @param value the value to provide the new metric entry for construction
      * @return the updated metric
      */
-    public Metric addMetricEntry(long metricId, float value) {
+    public MetricEntry addMetricEntry(String metricName, float value) {
         synchronized (this) {
-            Metric metric = this.metricStore.getMetric(metricId);
+            Metric metric = this.metricStore.getMetric(metricName);
             if (metric != null) {
-                MetricEntry metricEntry = new MetricEntry(value, metric.getMetricEntries().size());
+                MetricEntry metricEntry = new MetricEntry(value);
                 metric.addMetricEntry(metricEntry);
                 return this.metricStore.updateMetric(metric);
             }
@@ -66,12 +68,12 @@ public class BasicMetricsController extends MetricsController {
     }
 
     /**
-     * Gets a new metric summary based on the metric from the store associated with the provided id
-     * @param id the id of a metric in the store
+     * Gets a new metric summary based on the metric from the store associated with the provided name
+     * @param metricName the name of a metric in the store
      * @return a new mertric summary object
      */
-    public MetricSummary getMetricSummary(long id) {
-        Metric metric = this.metricStore.getMetric(id);
+    public MetricSummary getMetricSummary(String metricName) {
+        Metric metric = this.metricStore.getMetric(metricName);
         if(metric == null){
             throw new ResourceNotFoundException();
         }

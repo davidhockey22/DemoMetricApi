@@ -3,6 +3,7 @@ package com.ddouberley.metrics.stores;
 import com.ddouberley.metrics.entities.Metric;
 import com.ddouberley.metrics.entities.MetricEntry;
 import com.ddouberley.metrics.entities.ReadOptimizedMetric;
+import com.ddouberley.metrics.exceptions.UniqueNameException;
 import com.ddouberley.metrics.stores.InMemoryMetricStore;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,9 +29,9 @@ public class InMemoryMetricStoreTest {
         Metric metric2 = new ReadOptimizedMetric("MetricTest2");
         metric2 = metricStore.addMetric(metric2);
         Assert.assertTrue(metricStore.getMetrics().contains(metric));
-        Assert.assertNotNull(metric.getMetricId());
+        Assert.assertNotNull(metric.getMetricName());
         Assert.assertTrue(metricStore.getMetrics().contains(metric2));
-        Assert.assertNotNull(metric2.getMetricId());
+        Assert.assertNotNull(metric2.getMetricName());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -38,11 +39,12 @@ public class InMemoryMetricStoreTest {
         metricStore.addMetric(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = UniqueNameException.class)
     public void addMetricWithInvalidId() {
         Metric metric = new ReadOptimizedMetric("MetricTest");
-        metric.setMetricId(0L);
+        Metric metric2 = new ReadOptimizedMetric("MetricTest");
         metric = metricStore.addMetric(metric);
+        metric2 = metricStore.addMetric(metric2);
     }
 
     @Test
@@ -54,13 +56,12 @@ public class InMemoryMetricStoreTest {
 
         // Create new reference for updating so we know it's not just changing the current reference
         // but persisting to store
-        Metric metric2Update = new ReadOptimizedMetric("MetricTest");
-        metric2Update.setMetricId(metric2.getMetricId());
-        metric2Update.addMetricEntry(new MetricEntry(4f, 0));
+        Metric metric2Update = new ReadOptimizedMetric("MetricTest2");
+        metric2Update.addMetricEntry(new MetricEntry(4f));
         metric2 = metricStore.updateMetric(metric2Update);
 
-        Assert.assertEquals(metricStore.getMetric(metric2.getMetricId()).getMetricEntries().get(0).getMetricValue(), 4f, .01);
-        Assert.assertTrue(metricStore.getMetric(metric.getMetricId()).getMetricEntries().isEmpty());
+        Assert.assertEquals(metricStore.getMetric(metric2.getMetricName()).getMetricEntries().get(0).getMetricValue(), 4f, .01);
+        Assert.assertTrue(metricStore.getMetric(metric.getMetricName()).getMetricEntries().isEmpty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -87,8 +88,8 @@ public class InMemoryMetricStoreTest {
         Metric metric2 = new ReadOptimizedMetric("MetricTest2");
         metric2 = metricStore.addMetric(metric2);
         metricStore.deleteMetric(metric2);
-        Assert.assertNull(metricStore.getMetric(metric2.getMetricId()));
-        Assert.assertNotNull(metricStore.getMetric(metric.getMetricId()));
+        Assert.assertNull(metricStore.getMetric(metric2.getMetricName()));
+        Assert.assertNotNull(metricStore.getMetric(metric.getMetricName()));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -11,10 +11,8 @@ public class MetricSummary {
     private Double median;
     private Float min;
     private Float max;
-    private Long metricId;
 
     public MetricSummary(Metric metric) {
-        metricId = metric.getMetricId();
         metricName = metric.getMetricName();
         if (!metric.getMetricEntries().isEmpty()) {
             mean = MetricSummary.calculateMean(metric);
@@ -85,10 +83,6 @@ public class MetricSummary {
 
     public Float getMax() {
         return max;
-    }
-
-    public Long getMetricId() {
-        return metricId;
     }
 
     public String getMetricName() {

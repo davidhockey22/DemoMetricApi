@@ -2,21 +2,16 @@ package com.ddouberley.metrics.stores;
 
 import com.ddouberley.metrics.entities.Metric;
 import com.ddouberley.metrics.exceptions.ResourceNotFoundException;
+import com.ddouberley.metrics.exceptions.UniqueNameException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
-public class InMemoryMetricStore extends MetricStore {
-    private Map<Long, Metric> metricsMap;
-    private AtomicLong nextId = new AtomicLong(0);
-
-    private long getNextId() {
-        return this.nextId.getAndAdd(1);
-    }
+public class InMemoryMetricStore implements MetricStore {
+    private Map<String, Metric> metricsMap;
 
     public InMemoryMetricStore() {
         this.metricsMap = new HashMap<>();
@@ -24,32 +19,30 @@ public class InMemoryMetricStore extends MetricStore {
 
     @Override
     public Metric addMetric(Metric metric) {
-        if(metric == null){
+        if (metric == null) {
             throw new IllegalArgumentException("Metric must not be null");
+        } else if (metricsMap.containsKey(metric.getMetricName())){
+            throw new UniqueNameException();
         }
-        if(metric.getMetricId() != null){
-            throw new IllegalArgumentException("Metric id is generated value");
-        }
-        metric.setMetricId(getNextId());
-        metricsMap.put(metric.getMetricId(), metric);
+        metricsMap.put(metric.getMetricName(), metric);
         return metric;
     }
 
     @Override
     public Metric updateMetric(Metric metric) {
-        if(metric == null){
+        if (metric == null) {
             throw new IllegalArgumentException("Metric must not be null");
         }
-        if (metric.getMetricId() != null && metricsMap.containsKey(metric.getMetricId())) {
-            metricsMap.put(metric.getMetricId(), metric);
+        if (metric.getMetricName() != null && metricsMap.containsKey(metric.getMetricName())) {
+            metricsMap.put(metric.getMetricName(), metric);
             return metric;
         }
         throw new ResourceNotFoundException();
     }
 
     @Override
-    public Metric getMetric(long id) {
-        return metricsMap.get(id);
+    public Metric getMetric(String metricName) {
+        return metricsMap.get(metricName);
     }
 
     @Override
@@ -59,12 +52,12 @@ public class InMemoryMetricStore extends MetricStore {
 
     @Override
     public void deleteMetric(Metric metric) {
-        if(metric == null){
+        if (metric == null) {
             throw new IllegalArgumentException("Metric must not be null");
         }
-        if (!metricsMap.containsKey(metric.getMetricId())) {
+        if (!metricsMap.containsKey(metric.getMetricName())) {
             throw new ResourceNotFoundException();
         }
-        metricsMap.remove(metric.getMetricId());
+        metricsMap.remove(metric.getMetricName());
     }
 }

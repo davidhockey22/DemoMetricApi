@@ -1,6 +1,5 @@
-package com.ddouberley.metrics.endpoints;
+package com.ddouberley.metrics.controllers;
 
-import com.ddouberley.metrics.controllers.MetricsController;
 import com.ddouberley.metrics.entities.Metric;
 import com.ddouberley.metrics.entities.MetricEntry;
 import org.hamcrest.Matchers;
@@ -19,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class MetricsApiTest {
+public class MetricsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,11 +29,10 @@ public class MetricsApiTest {
     @Test
     public void createMetric() throws Exception {
         metricsController.createMetric("TestBeforeMetric");
-        String metricName = "TestMetric";
-        this.mockMvc.perform(put("/CreateMetric")
-                .param("name", metricName))
+        String metricName = "TestMetric1000";
+        this.mockMvc.perform(post("/Metric")
+                .param("metricName", metricName))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("metricId").exists())
                 .andExpect(jsonPath("metricName").value(metricName))
                 .andReturn();
 
@@ -42,9 +40,9 @@ public class MetricsApiTest {
 
     @Test
     public void addMetricEntry() throws Exception {
-        Metric metric = metricsController.createMetric("TestMetric");
-        this.mockMvc.perform(post("/AddMetricEntry")
-                .param("metricId", metric.getMetricId().toString())
+        Metric metric = metricsController.createMetric("TestMetric500");
+        this.mockMvc.perform(post("/Metric/MetricEntry")
+                .param("metricName", metric.getMetricName())
                 .param("value", ".021")
         )
                 .andExpect(status().isOk())
@@ -54,21 +52,20 @@ public class MetricsApiTest {
                             Matchers.<MetricEntry>hasProperty("metricValue", Matchers.is(.021))
                         )
                 ))
-                .andExpect(jsonPath("metricId").value(metric.getMetricId()));
+                .andExpect(jsonPath("metricName").value(metric.getMetricName()));
     }
 
     @Test
     public void getMetricSummary() throws Exception {
-        Metric metric = metricsController.createMetric("TestMetric");
-        metricsController.addMetricEntry(metric.getMetricId(), 1f);
-        metricsController.addMetricEntry(metric.getMetricId(), 2f);
-        metricsController.addMetricEntry(metric.getMetricId(), 3f);
-        metricsController.addMetricEntry(metric.getMetricId(), 4f);
+        Metric metric = metricsController.createMetric("TestMetric400");
+        metricsController.addMetricEntry(metric.getMetricName(), 1f);
+        metricsController.addMetricEntry(metric.getMetricName(), 2f);
+        metricsController.addMetricEntry(metric.getMetricName(), 3f);
+        metricsController.addMetricEntry(metric.getMetricName(), 4f);
         this.mockMvc.perform(get("/MetricSummary")
-                .param("metricId", metric.getMetricId().toString()))
+                .param("metricName", metric.getMetricName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("metricId").value(metric.getMetricId()))
-                .andExpect(jsonPath("metricName").value("TestMetric"))
+                .andExpect(jsonPath("metricName").value("TestMetric400"))
                 .andExpect(jsonPath("mean").value(2.5))
                 .andExpect(jsonPath("median").value(2.5))
                 .andExpect(jsonPath("min").value(1))
@@ -78,7 +75,7 @@ public class MetricsApiTest {
     @Test
     public void addMetricEntryNotFound() throws Exception {
         this.mockMvc.perform(post("/AddMetricEntry")
-                .param("metricId", "1000000")
+                .param("metricName", "1000000")
                 .param("value", ".021")
         )
                 .andExpect(status().isNotFound());
@@ -87,7 +84,7 @@ public class MetricsApiTest {
     @Test
     public void getMetricSummaryNotFound() throws Exception {
         this.mockMvc.perform(get("/MetricSummary")
-                .param("metricId", "1000000")
+                .param("metricName", "1000000")
         )
                 .andExpect(status().isNotFound());
     }

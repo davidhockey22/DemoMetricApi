@@ -8,10 +8,6 @@ public class ReadOptimizedMetric extends Metric {
     // For mean calculation optimization we can keep the running sum
     private double runningSum;
 
-    public ReadOptimizedMetric() {
-        super();
-    }
-
     public ReadOptimizedMetric(String metricName) {
         super(metricName);
     }

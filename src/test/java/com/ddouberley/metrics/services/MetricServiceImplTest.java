@@ -1,4 +1,4 @@
-package com.ddouberley.metrics.controllers;
+package com.ddouberley.metrics.services;
 
 import com.ddouberley.metrics.entities.Metric;
 import com.ddouberley.metrics.entities.MetricSummary;
@@ -15,15 +15,15 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BasicMetricsControllerTest {
+public class MetricServiceImplTest {
 
     // If the persistence layer were more complex we'd probably want to set a test profile to inject a test store
     @Autowired
-    BasicMetricsController metricsController;
+    MetricServiceImpl metricsController;
 
     @Test
     public void createMetric() {
-        Metric m = metricsController.createMetric("TestMetric");
+        Metric m = metricsController.createMetric("TestMetric5");
         Assert.assertNotNull(m);
     }
 
@@ -38,7 +38,7 @@ public class BasicMetricsControllerTest {
     @Test
     public void addMetricEntry() {
         Metric m = metricsController.createMetric("TestMetric");
-        m = metricsController.addMetricEntry(m.getMetricId(), 4);
+        m = metricsController.addMetricEntry(m.getMetricName(), 4);
         Assert.assertEquals(1, m.getMetricEntries().size());
         Assert.assertEquals(4, m.getMetricEntries().get(0).getMetricValue(), .01);
 
@@ -47,8 +47,8 @@ public class BasicMetricsControllerTest {
     @Test
     public void getMetricSummary() {
         Metric m = metricsController.createMetric("TestMetric");
-        m = metricsController.addMetricEntry(m.getMetricId(), 4);
-        MetricSummary ms = metricsController.getMetricSummary(m.getMetricId());
+        m = metricsController.addMetricEntry(m.getMetricName(), 4);
+        MetricSummary ms = metricsController.getMetricSummary(m.getMetricName());
         assertNotNull(ms);
     }
 }
