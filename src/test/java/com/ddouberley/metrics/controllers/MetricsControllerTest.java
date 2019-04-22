@@ -40,15 +40,12 @@ public class MetricsControllerTest {
     @Test
     public void addMetricEntry() throws Exception {
         Metric metric = metricsController.createMetric("TestMetric500");
-        this.mockMvc.perform(post("/Metric/MetricEntry")
+        this.mockMvc.perform(post("/MetricEntry")
                 .param("metricName", metric.getMetricName())
                 .param("value", ".021")
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("metricEntries").isArray())
-                .andExpect(jsonPath("metricEntries").isNotEmpty())
-                .andExpect(jsonPath("$.metricEntries[0].metricValue", is(.021)))
-                .andExpect(jsonPath("metricName").value(metric.getMetricName()));
+                .andExpect(jsonPath("metricValue", is(.021)));
     }
 
     @Test

@@ -15,7 +15,7 @@ public class RestReponseEntityExceptionHandler extends ResponseEntityExceptionHa
             = { IllegalArgumentException.class })
     protected ResponseEntity<Object> handleBadRequest(
             RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = ex.getMessage();
+        String bodyOfResponse = "The request is invalid.";
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
@@ -24,7 +24,7 @@ public class RestReponseEntityExceptionHandler extends ResponseEntityExceptionHa
             = { ResourceNotFoundException.class })
     protected ResponseEntity<Object> handleNoResourceFound(
             RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "The associated metric could not be found.";
+        String bodyOfResponse = "The associated metric could not be found!!!!";
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }

@@ -64,12 +64,12 @@ public class InMemoryMetricStore implements MetricStore {
     }
 
     @Override
-    public Metric addMetricEntryToMetric(long id, MetricEntry metricEntry) {
+    public MetricEntry addMetricEntryToMetric(String metricName, MetricEntry metricEntry) {
         synchronized (this){
-            Metric metric = this.getMetric(id);
+            Metric metric = this.getMetric(metricName);
             if(metric != null) {
                 metric.addMetricEntry(metricEntry);
-                return metric;
+                return metricEntry;
             }
         }
         throw new ResourceNotFoundException();

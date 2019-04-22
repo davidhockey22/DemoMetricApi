@@ -16,5 +16,5 @@ public interface MetricStore {
 
     public abstract void deleteMetric(Metric metric);
 
-    public abstract Metric addMetricEntryToMetric(long id, MetricEntry metricEntry);
+    public abstract MetricEntry addMetricEntryToMetric(String metricName, MetricEntry metricEntry);
 }

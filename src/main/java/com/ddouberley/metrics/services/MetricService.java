@@ -8,6 +8,7 @@ public interface MetricService {
     public abstract Metric createMetric(String metricName);
     public abstract MetricEntry addMetricEntry(String name, float value);
     public abstract MetricSummary getMetricSummary(String name);
+    public abstract Metric getMetric(String metricName);
 }
 
 
