@@ -56,15 +56,8 @@ public class MetricServiceImpl implements MetricService {
      * @return the updated metric
      */
     public MetricEntry addMetricEntry(String metricName, float value) {
-        synchronized (this) {
-            Metric metric = this.metricStore.getMetric(metricName);
-            if (metric != null) {
-                MetricEntry metricEntry = new MetricEntry(value);
-                metric.addMetricEntry(metricEntry);
-                return this.metricStore.updateMetric(metric);
-            }
-        }
-        throw new ResourceNotFoundException();
+        MetricEntry metricEntry = new MetricEntry(value);
+        return metricStore.addMetricEntryToMetric(metricName, metricEntry);
     }
 
     /**

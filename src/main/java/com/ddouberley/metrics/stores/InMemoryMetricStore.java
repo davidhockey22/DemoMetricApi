@@ -1,20 +1,22 @@
 package com.ddouberley.metrics.stores;
 
 import com.ddouberley.metrics.entities.Metric;
+import com.ddouberley.metrics.entities.MetricEntry;
 import com.ddouberley.metrics.exceptions.ResourceNotFoundException;
 import com.ddouberley.metrics.exceptions.UniqueNameException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class InMemoryMetricStore implements MetricStore {
     private Map<String, Metric> metricsMap;
 
     public InMemoryMetricStore() {
-        this.metricsMap = new HashMap<>();
+        this.metricsMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -59,5 +61,17 @@ public class InMemoryMetricStore implements MetricStore {
             throw new ResourceNotFoundException();
         }
         metricsMap.remove(metric.getMetricName());
+    }
+
+    @Override
+    public Metric addMetricEntryToMetric(long id, MetricEntry metricEntry) {
+        synchronized (this){
+            Metric metric = this.getMetric(id);
+            if(metric != null) {
+                metric.addMetricEntry(metricEntry);
+                return metric;
+            }
+        }
+        throw new ResourceNotFoundException();
     }
 }

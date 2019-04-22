@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ReadOptimizedMetric extends Metric {
 
     @JsonIgnore
-    // For mean calculation optimization we can keep the running sum
     private double runningSum;
 
     public ReadOptimizedMetric(String metricName) {

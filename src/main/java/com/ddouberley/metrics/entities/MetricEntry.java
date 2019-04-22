@@ -10,5 +10,4 @@ public class MetricEntry {
     public float getMetricValue() {
         return metricValue;
     }
-
 }
