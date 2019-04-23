@@ -67,11 +67,21 @@ public class MetricsControllerTest {
 
     @Test
     public void addMetricEntryNotFound() throws Exception {
-        this.mockMvc.perform(post("/AddMetricEntry")
+        this.mockMvc.perform(post("/MetricEntry")
                 .param("metricName", "1000000")
                 .param("value", ".021")
         )
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void addMetricDuplicateName() throws Exception {
+        Metric metric = metricsController.createMetric("TestMetric123");
+        this.mockMvc.perform(post("/Metric")
+                .param("metricName", "TestMetric123")
+                .param("value", ".021")
+        )
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

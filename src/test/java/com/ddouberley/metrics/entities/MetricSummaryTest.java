@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class MetricSummaryTest {
-    Metric metric;
+    private Metric metric;
 
     @Before
     public void setUp() throws Exception {

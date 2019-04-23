@@ -43,9 +43,9 @@ public class MetricServiceImpl implements MetricService {
     }
 
     /**
-     * Adds a metric entry to the metric associated with the metricId provided and stored the updated metric
+     * Adds a metric entry to the metric associated with the metricName provided and stored the updated metric
      *
-     * @param metricName the id associated with a metric in the store
+     * @param metricName the name associated with a metric in the store
      * @param value      the value to provide the new metric entry for construction
      * @return the updated metric
      */

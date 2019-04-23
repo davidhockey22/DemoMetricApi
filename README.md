@@ -1,3 +1,4 @@
+
 # Demo Metric API
 
 The API was made to be as simple as possible while allowing for flexibility in the future. The attempt was to follow the guidelines to the letter, so I stuck to three endpoints fulfilling the three required actions. My initial thought was to create a restful endpoint for the Metric entity and then provide a summary action, but I think for ease of use, providing a simple add metric entry method is better and is less tightly coupled to the internals of the metric entity if it were to change in the future. Based on your desire for a developer with spring IOC and boot experience, I figured I’d showcase those in this project as well.
@@ -12,7 +13,7 @@ The controller injected into the endpoint decides how to handle the actions and 
 
 ### MetricStore
 
-The store injected into the controller provides the contract for persisting and retrieving the data. I also decided that the persistence layer would provide the unique id for the Metric entities. The store was implemented with an in-memory store, as a basic map from id to Metric, but could be swapped out for something else, such as H2 or MongoDB store.
+The store injected into the controller provides the contract for persisting and retrieving the data. The store was implemented with an in-memory store, as a basic map from name to Metric, but could be swapped out for something else, such as H2 or MongoDB store.
 
 ### Metric
 
@@ -51,9 +52,9 @@ The store has references to object that exist outside the store so modifications
 ## Endpoints
 | Action             | Path            | Type | Parameters | Return with Example | Description                                                                                                   |  
 |--------------------|-----------------|------|------------|---------------------|---------------------------------------------------------------------------------------------------------------|
-| Create Metric      | /CreateMetric   | PUT  |  **name**=String Name of the metric.        | JSON object of Metric type <br> `{"metricName":"TestMetric2","metricId":0, "metricEntries":[]}`                 | Creates a metric item and persists the item to the store, returning   the resulting Metric item type as JSON. | 
-| Add Metric Entry   | /AddMetricEntry | POST |**metricId**=Long ID property of the metric <br> **value**=Float Float value for adding to metric’s entries     | JSON object of Metric type <br>         `{"metricName":"TestMetric2", "metricId":0, "metricEntries":[{"metricValue":6.5}]}` <br> Possible 404 if metricId not found.          | Adds a MetricEntry with the value provided to an existing Metric with   the associated metricId.              |
-| Get Metric Summary | /MetricSummary  | PUT  |      **metricId**=Long ID property of the metric      |   JSON object of Metric Summary type <br>      `{ "metricName": "TestMetric2", "mean": 5.09689998626709, "median": 5.25, "min": 1, "max": 8.8876, "metricId": 0}`<br> Possible 404 if metricId not found.<br> Not all properties will be available if there are not MetricEntries | Gets the summary for the metric with the associated id.                                                       |
+| Create Metric      | /CreateMetric   | PUT  |  **name**=String Name of the metric.        | JSON object of Metric type <br> `{"metricName":"TestMetric2","metricEntries":[]}`                 | Creates a metric item and persists the item to the store, returning   the resulting Metric item type as JSON. | 
+| Add Metric Entry   | /AddMetricEntry | POST |**metricName**=String name of the metric <br> **value**=Float Float value for adding to metric’s entries     | JSON object of Metric type <br>         `{"metricName":"TestMetric2",  "metricEntries":[{"metricValue":6.5}]}` <br> Possible 404 if metricName is not found.          | Adds a MetricEntry with the value provided to an existing Metric with   the associated metricName.              |
+| Get Metric Summary | /MetricSummary  | PUT  |      **metricName**=String name of the metric      |   JSON object of Metric Summary type <br>      `{ "metricName": "TestMetric2", "mean": 5.09689998626709, "median": 5.25, "min": 1, "max": 8.8876}`<br> Possible 404 if metricName not found.<br> Not all properties will be available if there are not MetricEntries | Gets the summary for the metric with the associated name.                                                       |
 
 Note all endpoints will return 400 on illegal arguments. 
 
@@ -61,7 +62,7 @@ Note all endpoints will return 400 on illegal arguments.
 | Endpoint | Time | Space |
 |--|--|--|
 | Create Metric | O(1) <br> There's not much happening here to increase complexity. |  O(1) <br> This creates 1 Metric entry and only one copy of each piece of the data, except for the running sum, resulting in 64 bits(one double) of duplicate information. |
-| Add Metric Entry | O(logn) <br> This is bound by the time that it takes to insert the new entry into the correct value ordered slot in the metric's entries.  | O(n) <br> This is really for the general storage of all the metric entries. Each entry is stored once.
+| Add Metric Entry | O(logn) <br> This is bound by the time that it takes to insert the new entry into the correct value ordered slot in the metric's entries which is done with a binary search.  | O(n) <br> This is really for the general storage of all the metric entries. Each entry is stored once.
 | Get Metric Summary | O(1) <br> Each operation in the summary is calculated in O(1) because of the ReadOptimizedMetric | O(1) None of this information in this endpoint is stored and even for the short life of the summary object the memory does not increase for each entry.
 
 Note: All of the assume that the store access time is O(1) which it is for the map used in the InMemoryStore(amoritized). 
@@ -84,8 +85,8 @@ To build and run unit tests
 ## Quick API Call Examples
 
     # Create metric with name TestMetric2
-    curl -X PUT 'http://localhost:8080/Metric?name=TestMetric2'
-    # Get metric with metric id 0
+    curl -X POST 'http://localhost:8080/Metric?metricName=TestMetric2'
+    # Get metric with metric name TestMetric2
     curl -X GET 'http://localhost:8080/MetricSummary?metricName=TestMetric2'
-    #Add Metric entry to metric id 0 with value 8.5
+    #Add Metric entry to metric name TestMetric2 with value 8.5
     curl -X POST http://localhost:8080/MetricEntry -d 'metricName=0&value=8.5'

@@ -69,6 +69,7 @@ public class InMemoryMetricStore implements MetricStore {
             Metric metric = this.getMetric(metricName);
             if(metric != null) {
                 metric.addMetricEntry(metricEntry);
+                this.updateMetric(metric);
                 return metricEntry;
             }
         }

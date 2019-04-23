@@ -1,5 +1,7 @@
-package com.ddouberley.metrics.exceptions;
+package com.ddouberley.metrics.controllers;
 
+import com.ddouberley.metrics.exceptions.ResourceNotFoundException;
+import com.ddouberley.metrics.exceptions.UniqueNameException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,20 +14,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestReponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value
-            = { IllegalArgumentException.class })
-    protected ResponseEntity<Object> handleBadRequest(
-            RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "The request is invalid.";
-        return handleExceptionInternal(ex, bodyOfResponse,
-                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
-    }
-
-    @ExceptionHandler(value
             = { ResourceNotFoundException.class })
     protected ResponseEntity<Object> handleNoResourceFound(
             RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "The associated metric could not be found!!!!";
+        String bodyOfResponse = "The associated metric could not be found!";
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(value
+            = { UniqueNameException.class })
+    protected ResponseEntity<Object> handleUniqueNameException(
+            RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = "The metric name is already in use.";
+        return handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 }

@@ -40,7 +40,7 @@ public class InMemoryMetricStoreTest {
     }
 
     @Test(expected = UniqueNameException.class)
-    public void addMetricWithInvalidId() {
+    public void addMetricWithInvalidName() {
         Metric metric = new ReadOptimizedMetric("MetricTest");
         Metric metric2 = new ReadOptimizedMetric("MetricTest");
         metric = metricStore.addMetric(metric);
