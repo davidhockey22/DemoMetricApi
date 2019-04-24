@@ -2,64 +2,69 @@ package com.ddouberley.metrics.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class ReadOptimizedMetric extends Metric {
 
     @JsonIgnore
     private double runningSum;
+    @JsonIgnore
+    private Float min;
+    @JsonIgnore
+    private Float max;
+    @JsonIgnore
+    private PriorityQueue<Float> lowerHalfMaxHeap;
+    @JsonIgnore
+    private PriorityQueue<Float> upperHalfMinHeap;
 
     public ReadOptimizedMetric(String metricName) {
         super(metricName);
+        this.min = null;
+        this.max = null;
+        this.lowerHalfMaxHeap = new PriorityQueue<>(Comparator.reverseOrder());
+        this.upperHalfMinHeap = new PriorityQueue<>();
     }
 
     public void addMetricEntry(MetricEntry newEntry) {
         this.runningSum += newEntry.getMetricValue();
-        if (this.getMetricEntries().isEmpty()) {
-            this.getMetricEntries().add(newEntry);
-            return;
+        if (this.max == null || newEntry.getMetricValue() > this.max) {
+            this.max = newEntry.getMetricValue();
         }
-        int index = this.findSortedPosition(0, this.getMetricEntries().size() - 1, newEntry);
-        this.getMetricEntries().add(index, newEntry);
-
+        if (this.min == null || newEntry.getMetricValue() < this.min) {
+            this.min = newEntry.getMetricValue();
+        }
+        this.addToRollingMedian(newEntry);
+        this.getMetricEntries().add(newEntry);
     }
 
-    /**
-     * Binary search to find correct sorted position for the metric entry
-     * @param low
-     * @param high
-     * @param newEntry
-     * @return
-     */
-    private int findSortedPosition(int low, int high, MetricEntry newEntry) {
-        if (low >= high) {
-            // we found the closest value now correct for this value
-            if (this.getMetricEntries().get(low).getMetricValue() < newEntry.getMetricValue()) {
-                return low + 1;
-            } else {
-                return low;
-            }
-        }
-        int middle = low + ((high - low) / 2);
-        float middleValue = this.getMetricEntries().get(middle).getMetricValue();
-        if (newEntry.getMetricValue() < middleValue) {
-            return findSortedPosition(low, middle - 1, newEntry);
-        } else if (newEntry.getMetricValue() > middleValue) {
-            return findSortedPosition(middle + 1, high, newEntry);
-        }
-        return middle;
+    @Override
+    public List<MetricEntry> getMetricEntries() {
+        return Stream.concat(this.lowerHalfMaxHeap.stream(), this.upperHalfMinHeap.stream())
+                        .map(MetricEntry::new)
+                        .collect(Collectors.toList());
     }
 
-    public float getKthGreatestEntryValue(int k) {
-        if (k >= this.getMetricEntries().size()) {
-            throw new IllegalArgumentException("The value of k must be less than the number of entries");
+    private void addToRollingMedian(MetricEntry newEntry) {
+        this.upperHalfMinHeap.offer(newEntry.getMetricValue());
+        this.lowerHalfMaxHeap.offer(upperHalfMinHeap.poll());
+        // Rebalance
+        if (upperHalfMinHeap.size() < lowerHalfMaxHeap.size()) {
+            upperHalfMinHeap.offer(lowerHalfMaxHeap.poll());
         }
-        return this.getMetricEntries().get(this.getMetricEntries().size() - 1 - k).getMetricValue();
     }
 
-    public float getKthSmallestEntryValue(int k) {
-        if (k >= this.getMetricEntries().size()) {
-            throw new IllegalArgumentException("The value of k must be less than the number of entries");
+    @JsonIgnore
+    public Double getMedian() {
+        if (upperHalfMinHeap.isEmpty()) {
+            return null;
         }
-        return this.getMetricEntries().get(k).getMetricValue();
+        if (upperHalfMinHeap.size() > lowerHalfMaxHeap.size()) {
+            return new Double(upperHalfMinHeap.peek());
+        } else {
+            return (upperHalfMinHeap.peek() + lowerHalfMaxHeap.peek()) / 2.0;
+        }
     }
 
     @Override
@@ -68,4 +73,34 @@ public class ReadOptimizedMetric extends Metric {
         return this.runningSum;
     }
 
+
+    @Override
+    @JsonIgnore
+    public Float getMin() {
+        return min;
+    }
+
+    @Override
+    @JsonIgnore
+    public Float getMax() {
+        return max;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReadOptimizedMetric that = (ReadOptimizedMetric) o;
+        return Double.compare(that.runningSum, runningSum) == 0 &&
+                Objects.equals(getMin(), that.getMin()) &&
+                Objects.equals(getMax(), that.getMax()) &&
+                Objects.equals(lowerHalfMaxHeap, that.lowerHalfMaxHeap) &&
+                Objects.equals(upperHalfMinHeap, that.upperHalfMinHeap);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(runningSum, getMin(), getMax(), lowerHalfMaxHeap, upperHalfMinHeap);
+    }
 }

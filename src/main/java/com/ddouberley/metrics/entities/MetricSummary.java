@@ -2,8 +2,6 @@ package com.ddouberley.metrics.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.Collection;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MetricSummary {
     private final String metricName;
@@ -29,7 +27,7 @@ public class MetricSummary {
      * @return float minimum value of the metric entries
      */
     static float calculateMin(Metric metric) {
-        return metric.getKthSmallestEntryValue(0);
+        return metric.getMin();
     }
 
     /**
@@ -39,7 +37,7 @@ public class MetricSummary {
      * @return float maximum value of the metric entries
      */
     static float calculateMax(Metric metric) {
-        return metric.getKthGreatestEntryValue(0);
+        return metric.getMax();
     }
 
     /**
@@ -49,14 +47,7 @@ public class MetricSummary {
      * @return double the median value of the metric entries
      */
     static double calculateMedian(Metric metric) {
-        Collection<MetricEntry> metricEntries = metric.getMetricEntries();
-        int size = metricEntries.size();
-        if (size % 2 == 0) {
-            // Average 2 mean values
-            return (metric.getKthSmallestEntryValue(size / 2) +
-                    metric.getKthSmallestEntryValue((size / 2) - 1)) / 2;
-        }
-        return metric.getKthSmallestEntryValue(size / 2);
+       return metric.getMedian();
     }
 
     /**
@@ -65,8 +56,11 @@ public class MetricSummary {
      * @param metric the metric holding the metric entries
      * @return double the mean value of the metric entries
      */
-    static double calculateMean(Metric metric) {
-        return metric.getEntrySum() / metric.getMetricEntries().size();
+    static Double calculateMean(Metric metric) {
+        if(metric.getMetricEntries().size() > 0) {
+            return metric.getEntrySum() / metric.getMetricEntries().size();
+        }
+        return null;
     }
 
     public Double getMean() {
