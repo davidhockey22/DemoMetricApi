@@ -31,4 +31,6 @@ public abstract class Metric {
     public abstract Float getMax();
 
     public abstract Double getMedian();
+
+    public abstract int getNumberOfEntries();
 }

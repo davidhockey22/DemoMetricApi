@@ -18,11 +18,14 @@ public class ReadOptimizedMetric extends Metric {
     private PriorityQueue<Float> lowerHalfMaxHeap;
     @JsonIgnore
     private PriorityQueue<Float> upperHalfMinHeap;
+    @JsonIgnore
+    private int numEntries;
 
     public ReadOptimizedMetric(String metricName) {
         super(metricName);
         this.min = null;
         this.max = null;
+        this.numEntries = 0;
         this.lowerHalfMaxHeap = new PriorityQueue<>(Comparator.reverseOrder());
         this.upperHalfMinHeap = new PriorityQueue<>();
     }
@@ -36,7 +39,7 @@ public class ReadOptimizedMetric extends Metric {
             this.min = newEntry.getMetricValue();
         }
         this.addToRollingMedian(newEntry);
-        this.getMetricEntries().add(newEntry);
+        this.numEntries++;
     }
 
     @Override
@@ -65,6 +68,11 @@ public class ReadOptimizedMetric extends Metric {
         } else {
             return (upperHalfMinHeap.peek() + lowerHalfMaxHeap.peek()) / 2.0;
         }
+    }
+
+    @Override
+    public int getNumberOfEntries() {
+        return numEntries;
     }
 
     @Override
@@ -100,7 +108,6 @@ public class ReadOptimizedMetric extends Metric {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(runningSum, getMin(), getMax(), lowerHalfMaxHeap, upperHalfMinHeap);
     }
 }
