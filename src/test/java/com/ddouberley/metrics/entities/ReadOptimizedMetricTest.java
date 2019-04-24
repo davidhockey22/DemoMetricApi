@@ -4,8 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class ReadOptimizedMetricTest {
 
     private ReadOptimizedMetric metric;
@@ -29,6 +27,21 @@ public class ReadOptimizedMetricTest {
         Assert.assertTrue(metric.getMetricEntries().contains(new MetricEntry(7f)));
         Assert.assertTrue(metric.getMetricEntries().contains(new MetricEntry(9f)));
         Assert.assertTrue(metric.getMetricEntries().contains(new MetricEntry(12f)));
+    }
+
+    @Test
+    public void getMedian() {
+        Assert.assertEquals(metric.getMedian(), 7d, .0001);
+    }
+
+    @Test
+    public void getMax() {
+        Assert.assertEquals(metric.getMax(), 12f, .0001);
+    }
+
+    @Test
+    public void getMin() {
+        Assert.assertEquals(metric.getMin(), 1f, .0001);
     }
 
     @Test
